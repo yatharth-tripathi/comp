@@ -19,6 +19,7 @@ import { onboardingRoutes } from "./routes/onboarding.js";
 import { publicIllustrationRoutes } from "./routes/public-illustrations.js";
 import { publicShareRoutes } from "./routes/public-shares.js";
 import { reelRoutes } from "./routes/reels.js";
+import { rolePlayRoutes } from "./routes/role-play.js";
 import { tenantRoutes } from "./routes/tenants.js";
 import { userRoutes } from "./routes/users.js";
 
@@ -75,6 +76,7 @@ app.route("/api/content", contentRoutes);
 app.route("/api/content-tags", contentTagsRoutes);
 app.route("/api/reels", reelRoutes);
 app.route("/api/illustrations", illustrationRoutes);
+app.route("/api/role-play", rolePlayRoutes);
 
 // Root
 app.get("/", (c) =>
