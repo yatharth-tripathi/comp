@@ -5,8 +5,8 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/s/:shortCode", // public share-link redirect pages
-  "/i/:shortCode", // illustration public view
+  "/s/(.*)", // public share-link redirect pages
+  "/i/(.*)", // illustration public view
   "/api/public/(.*)",
 ]);
 

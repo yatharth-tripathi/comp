@@ -10,7 +10,11 @@ import { contextMiddleware } from "./middleware/context.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { rateLimitMiddleware } from "./middleware/rate-limit.js";
 import { clerkWebhookRoutes } from "./routes/clerk-webhook.js";
+import { contentRoutes } from "./routes/content.js";
+import { contentTagsRoutes } from "./routes/content-tags.js";
 import { healthRoutes } from "./routes/health.js";
+import { onboardingRoutes } from "./routes/onboarding.js";
+import { publicShareRoutes } from "./routes/public-shares.js";
 import { tenantRoutes } from "./routes/tenants.js";
 import { userRoutes } from "./routes/users.js";
 
@@ -49,13 +53,20 @@ app.onError(errorHandler);
 // ---------------------------------------------------------------------------
 // Public
 app.route("/health", healthRoutes);
+app.route("/public/shares", publicShareRoutes);
 
 // Webhooks — NOT behind auth, but signature-verified inside the route
 app.route("/webhooks/clerk", clerkWebhookRoutes);
 
+// Onboarding — NOT behind authMiddleware because the user row doesn't exist
+// yet; the handler verifies the Clerk JWT directly.
+app.route("/api/onboarding", onboardingRoutes);
+
 // Authed API surface
 app.route("/api/tenants", tenantRoutes);
 app.route("/api/users", userRoutes);
+app.route("/api/content", contentRoutes);
+app.route("/api/content-tags", contentTagsRoutes);
 
 // Root
 app.get("/", (c) =>
