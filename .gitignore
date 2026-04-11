@@ -1,0 +1,46 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+.next/
+out/
+build/
+.turbo/
+
+# env files — never commit
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# editor / OS
+.DS_Store
+.vscode/
+!.vscode/settings.json.example
+.idea/
+*.swp
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# drizzle
+packages/db/drizzle/.snapshot/
+packages/db/drizzle/_journal.json.backup
+
+# coverage
+coverage/
+.nyc_output/
+
+# misc
+*.local
+.cache/
