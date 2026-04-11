@@ -1,0 +1,22 @@
+{
+  "name": "@salescontent/finance",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./term-plan": "./src/term-plan.ts",
+    "./sip": "./src/sip.ts",
+    "./home-loan": "./src/home-loan.ts",
+    "./health": "./src/health.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

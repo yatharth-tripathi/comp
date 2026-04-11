@@ -20,6 +20,7 @@
     "@mux/mux-node": "^9.0.1",
     "@hono/zod-validator": "^0.4.1",
     "@salescontent/db": "workspace:*",
+    "@salescontent/finance": "workspace:*",
     "@salescontent/schemas": "workspace:*",
     "@upstash/qstash": "^2.7.20",
     "@upstash/ratelimit": "^2.0.4",

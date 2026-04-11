@@ -13,8 +13,10 @@ import { clerkWebhookRoutes } from "./routes/clerk-webhook.js";
 import { contentRoutes } from "./routes/content.js";
 import { contentTagsRoutes } from "./routes/content-tags.js";
 import { healthRoutes } from "./routes/health.js";
+import { illustrationRoutes } from "./routes/illustrations.js";
 import { muxWebhookRoutes } from "./routes/mux-webhook.js";
 import { onboardingRoutes } from "./routes/onboarding.js";
+import { publicIllustrationRoutes } from "./routes/public-illustrations.js";
 import { publicShareRoutes } from "./routes/public-shares.js";
 import { reelRoutes } from "./routes/reels.js";
 import { tenantRoutes } from "./routes/tenants.js";
@@ -56,6 +58,7 @@ app.onError(errorHandler);
 // Public
 app.route("/health", healthRoutes);
 app.route("/public/shares", publicShareRoutes);
+app.route("/public/illustrations", publicIllustrationRoutes);
 
 // Webhooks — NOT behind auth, but signature-verified inside the route
 app.route("/webhooks/clerk", clerkWebhookRoutes);
@@ -71,6 +74,7 @@ app.route("/api/users", userRoutes);
 app.route("/api/content", contentRoutes);
 app.route("/api/content-tags", contentTagsRoutes);
 app.route("/api/reels", reelRoutes);
+app.route("/api/illustrations", illustrationRoutes);
 
 // Root
 app.get("/", (c) =>

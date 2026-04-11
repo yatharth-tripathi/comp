@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  transpilePackages: ["@salescontent/schemas"],
+  transpilePackages: ["@salescontent/schemas", "@salescontent/finance"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
