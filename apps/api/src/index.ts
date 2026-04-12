@@ -17,6 +17,7 @@ import { healthRoutes } from "./routes/health.js";
 import { illustrationRoutes } from "./routes/illustrations.js";
 import { leadRoutes } from "./routes/leads.js";
 import { learningRoutes } from "./routes/learning.js";
+import { managerDashboardRoutes } from "./routes/manager-dashboard.js";
 import { muxWebhookRoutes } from "./routes/mux-webhook.js";
 import { onboardingRoutes } from "./routes/onboarding.js";
 import { publicIllustrationRoutes } from "./routes/public-illustrations.js";
@@ -85,6 +86,7 @@ app.route("/api/illustrations", illustrationRoutes);
 app.route("/api/role-play", rolePlayRoutes);
 app.route("/api/copilot", copilotRoutes);
 app.route("/api/leads", leadRoutes);
+app.route("/api/manager", managerDashboardRoutes);
 app.route("/api/learning", learningRoutes);
 app.route("/api/whatsapp", whatsappSendRoutes);
 
