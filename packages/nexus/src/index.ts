@@ -4,3 +4,4 @@ export * from "./products.js";
 export * from "./skills.js";
 export * from "./scoring.js";
 export * from "./prompts.js";
+export * from "./copilot-prompts.js";
