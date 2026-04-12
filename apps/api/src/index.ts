@@ -9,6 +9,8 @@ import { auditMiddleware } from "./middleware/audit.js";
 import { contextMiddleware } from "./middleware/context.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { rateLimitMiddleware } from "./middleware/rate-limit.js";
+import { adminRoutes } from "./routes/admin.js";
+import { apiKeyRoutes } from "./routes/api-keys.js";
 import { clerkWebhookRoutes } from "./routes/clerk-webhook.js";
 import { contentRoutes } from "./routes/content.js";
 import { contentTagsRoutes } from "./routes/content-tags.js";
@@ -89,6 +91,8 @@ app.route("/api/leads", leadRoutes);
 app.route("/api/manager", managerDashboardRoutes);
 app.route("/api/learning", learningRoutes);
 app.route("/api/whatsapp", whatsappSendRoutes);
+app.route("/api/api-keys", apiKeyRoutes);
+app.route("/api/admin", adminRoutes);
 
 // Root
 app.get("/", (c) =>
