@@ -15,6 +15,7 @@ import { contentTagsRoutes } from "./routes/content-tags.js";
 import { copilotRoutes } from "./routes/copilot.js";
 import { healthRoutes } from "./routes/health.js";
 import { illustrationRoutes } from "./routes/illustrations.js";
+import { leadRoutes } from "./routes/leads.js";
 import { learningRoutes } from "./routes/learning.js";
 import { muxWebhookRoutes } from "./routes/mux-webhook.js";
 import { onboardingRoutes } from "./routes/onboarding.js";
@@ -80,6 +81,7 @@ app.route("/api/reels", reelRoutes);
 app.route("/api/illustrations", illustrationRoutes);
 app.route("/api/role-play", rolePlayRoutes);
 app.route("/api/copilot", copilotRoutes);
+app.route("/api/leads", leadRoutes);
 app.route("/api/learning", learningRoutes);
 
 // Root
