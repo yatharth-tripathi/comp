@@ -25,6 +25,8 @@ import { reelRoutes } from "./routes/reels.js";
 import { rolePlayRoutes } from "./routes/role-play.js";
 import { tenantRoutes } from "./routes/tenants.js";
 import { userRoutes } from "./routes/users.js";
+import { whatsappSendRoutes } from "./routes/whatsapp-send.js";
+import { whatsappWebhookRoutes } from "./routes/whatsapp-webhook.js";
 
 const config = env();
 
@@ -67,6 +69,7 @@ app.route("/public/illustrations", publicIllustrationRoutes);
 // Webhooks — NOT behind auth, but signature-verified inside the route
 app.route("/webhooks/clerk", clerkWebhookRoutes);
 app.route("/webhooks/mux", muxWebhookRoutes);
+app.route("/webhooks/whatsapp", whatsappWebhookRoutes);
 
 // Onboarding — NOT behind authMiddleware because the user row doesn't exist
 // yet; the handler verifies the Clerk JWT directly.
@@ -83,6 +86,7 @@ app.route("/api/role-play", rolePlayRoutes);
 app.route("/api/copilot", copilotRoutes);
 app.route("/api/leads", leadRoutes);
 app.route("/api/learning", learningRoutes);
+app.route("/api/whatsapp", whatsappSendRoutes);
 
 // Root
 app.get("/", (c) =>
