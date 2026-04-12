@@ -5,8 +5,19 @@ import { and, db, desc, eq, schema, sql } from "@salescontent/db";
 import { bulkInviteSchema } from "@salescontent/schemas";
 import { authMiddleware, requireRole } from "../middleware/auth.js";
 import { NotFoundError } from "../lib/errors.js";
+import { dpdpErasureHandler } from "../middleware/security.js";
 
 export const adminRoutes = new Hono();
+
+// ---------------------------------------------------------------------------
+// DELETE /api/admin/user-data — DPDP Act 2023 right-to-erasure (PRD §13.3)
+// ---------------------------------------------------------------------------
+adminRoutes.delete(
+  "/user-data",
+  authMiddleware,
+  requireRole("enterprise_admin"),
+  dpdpErasureHandler,
+);
 
 // ---------------------------------------------------------------------------
 // POST /api/admin/campaigns — create a content push campaign (PRD §12.3)
