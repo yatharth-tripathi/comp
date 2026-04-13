@@ -117,22 +117,24 @@ whatsappWebhookRoutes.post("/", async (c) => {
 
         const resolvedAgent = agent ?? agentFallback;
 
-        // Persist inbound message
-        await db.insert(schema.whatsappMessages).values({
-          tenantId: resolvedAgent?.tenantId ?? undefined,
-          direction: "inbound",
-          messageType: msgType as "text",
-          status: "received",
-          fromPhone,
-          toPhone: phoneNumberId ?? "",
-          waMessageId,
-          bodyText,
-          rawPayload: msg as Record<string, unknown>,
-          senderUserId: resolvedAgent?.id ?? undefined,
-          sentAt: timestamp
-            ? new Date(parseInt(timestamp, 10) * 1000)
-            : new Date(),
-        });
+        // Persist inbound message only if we can resolve a tenant
+        if (resolvedAgent?.tenantId) {
+          await db.insert(schema.whatsappMessages).values({
+            tenantId: resolvedAgent.tenantId,
+            direction: "inbound",
+            messageType: msgType as "text",
+            status: "received",
+            fromPhone,
+            toPhone: phoneNumberId ?? "",
+            waMessageId,
+            bodyText,
+            rawPayload: msg as Record<string, unknown>,
+            senderUserId: resolvedAgent.id,
+            sentAt: timestamp
+              ? new Date(parseInt(timestamp, 10) * 1000)
+              : new Date(),
+          });
+        }
 
         // Mark as read (double blue ticks)
         void markAsRead(waMessageId).catch(() => undefined);

@@ -8,7 +8,7 @@ import { migrate } from "drizzle-orm/neon-http/migrator";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl: string = process.env.DATABASE_URL ?? "";
 if (!databaseUrl) {
   console.error("DATABASE_URL is not set. Refusing to run migrations.");
   process.exit(1);

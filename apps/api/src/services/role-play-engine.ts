@@ -74,11 +74,11 @@ export async function ensureSeedScenariosForTenant(tenantId: string): Promise<vo
       language: seed.language,
       xpReward: seed.xpReward,
       tags: seed.tags,
-      personaJson: seed.persona,
+      personaJson: seed.persona as never,
       openingStatement: seed.openingStatement,
-      stepsJson: seed.steps,
-      evaluationRulesJson: seed.evaluationRules,
-      complianceRulesJson: seed.complianceRules,
+      stepsJson: seed.steps as never,
+      evaluationRulesJson: seed.evaluationRules as never,
+      complianceRulesJson: seed.complianceRules as never,
     });
   }
 }

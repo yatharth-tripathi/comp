@@ -10,10 +10,10 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { contentAssets } from "./content.js";
-import { reelCreatorEnum, reelReviewEnum } from "./enums.js";
-import { tenantOrgUnits, tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { contentAssets } from "./content";
+import { reelCreatorEnum, reelReviewEnum } from "./enums";
+import { tenantOrgUnits, tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Reels (PRD §5) — short vertical video content.

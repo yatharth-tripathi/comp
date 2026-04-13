@@ -10,9 +10,9 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { illustrationProductEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { illustrationProductEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Illustrations (PRD §6 PitchWiz)

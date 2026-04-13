@@ -11,8 +11,8 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { roleEnum } from "./enums.js";
-import { tenantOrgUnits, tenants } from "./tenants.js";
+import { roleEnum } from "./enums";
+import { tenantOrgUnits, tenants } from "./tenants";
 
 // ---------------------------------------------------------------------------
 // Users — one row per Clerk user, scoped by tenant.

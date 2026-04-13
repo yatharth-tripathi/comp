@@ -10,8 +10,8 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // API keys (PRD §13.1 API-first, §11.4 API access)

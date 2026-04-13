@@ -68,8 +68,7 @@ publicIllustrationRoutes.get("/:shortCode", async (c) => {
         ? {
             displayName:
               agent.personalizationDefaults?.displayName ??
-              `${agent.firstName ?? ""} ${agent.lastName ?? ""}`.trim() ||
-              "Your advisor",
+              (`${agent.firstName ?? ""} ${agent.lastName ?? ""}`.trim() || "Your advisor"),
             displayPhone: agent.personalizationDefaults?.displayPhone ?? agent.phone,
             displayEmail: agent.personalizationDefaults?.displayEmail ?? agent.email,
             designation: agent.designation,

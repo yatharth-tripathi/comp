@@ -10,7 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { planTierEnum } from "./enums.js";
+import { planTierEnum } from "./enums";
 
 // ---------------------------------------------------------------------------
 // Tenants (PRD §3.3 Multi-tenancy model)

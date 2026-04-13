@@ -4,18 +4,18 @@
  * file and re-export here so drizzle-kit picks them up.
  */
 
-export * from "./enums.js";
-export * from "./tenants.js";
-export * from "./users.js";
-export * from "./content.js";
-export * from "./share-events.js";
-export * from "./reels.js";
-export * from "./illustrations.js";
-export * from "./copilot.js";
-export * from "./learning.js";
-export * from "./leads.js";
-export * from "./whatsapp.js";
-export * from "./admin.js";
-export * from "./audit.js";
-export * from "./notifications.js";
-export * from "./api-keys.js";
+export * from "./enums";
+export * from "./tenants";
+export * from "./users";
+export * from "./content";
+export * from "./share-events";
+export * from "./reels";
+export * from "./illustrations";
+export * from "./copilot";
+export * from "./learning";
+export * from "./leads";
+export * from "./whatsapp";
+export * from "./admin";
+export * from "./audit";
+export * from "./notifications";
+export * from "./api-keys";

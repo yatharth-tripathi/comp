@@ -246,7 +246,7 @@ export async function queryCopilot(
     cachedTokens,
     outputTokens: usage.output_tokens,
     latencyMs,
-    toolCalls: toolsUsed,
+    toolCalls: toolsUsed as unknown as Array<{ name: string; input: Record<string, unknown>; output?: unknown }>,
   });
 
   // Update session usage totals

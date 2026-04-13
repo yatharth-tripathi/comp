@@ -9,9 +9,9 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { campaignStatusEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { campaignStatusEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Announcements (PRD §12.3) — banner / push / WA broadcasts from admins

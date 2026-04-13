@@ -82,6 +82,7 @@ export function ShowMeViewer({ data, customerName, customerAvatar }: Props): JSX
       const timer = setTimeout(() => setShowDebrief(true), 1200);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [allRevealed, showDebrief]);
 
   // Auto-scroll to latest exchange

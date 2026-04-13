@@ -35,7 +35,7 @@ export function AdminPanelView({ tenant, apiKeys, campaigns, auditLogs }: Props)
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
 
   const createApiKey = async (): Promise<void> => {
-    if (!newKeyName.trim()) return toast.error("Key name required");
+    if (!newKeyName.trim()) { toast.error("Key name required"); return; }
     setCreatingKey(true);
     try {
       const token = await getToken();

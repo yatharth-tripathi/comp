@@ -19,9 +19,9 @@ import {
   contentTypeEnum,
   personalizationZoneEnum,
   tagDimensionEnum,
-} from "./enums.js";
-import { tenantOrgUnits, tenants } from "./tenants.js";
-import { users } from "./users.js";
+} from "./enums";
+import { tenantOrgUnits, tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Content assets — the single heart of the library (PRD §4)

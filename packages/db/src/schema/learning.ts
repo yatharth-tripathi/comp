@@ -11,9 +11,9 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { journeyTypeEnum, moduleFormatEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { journeyTypeEnum, moduleFormatEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Learning journeys (PRD §8.1.1)

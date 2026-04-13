@@ -91,7 +91,7 @@ export function SipBuilder(): JSX.Element {
   }, [customerName, monthlyAmount, durationYears, expectedReturn, goalLabel]);
 
   const generate = async (): Promise<void> => {
-    if (!customerName.trim()) return toast.error("Customer name required");
+    if (!customerName.trim()) { toast.error("Customer name required"); return; }
     setSubmitting(true);
     try {
       const token = await getToken();

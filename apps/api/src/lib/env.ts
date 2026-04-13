@@ -19,7 +19,7 @@ const envSchema = z.object({
   CLERK_WEBHOOK_SECRET: z.string().optional(),
 
   // AI
-  ANTHROPIC_API_KEY: z.string().min(1, "ANTHROPIC_API_KEY is required"),
+  ANTHROPIC_API_KEY: z.string().default(""),
   ANTHROPIC_MODEL_DEFAULT: z.string().default("claude-sonnet-4-5"),
   ANTHROPIC_MODEL_FAST: z.string().default("claude-haiku-4-5"),
   CLAUDE_DAILY_CAP_USD: z.coerce.number().min(0).default(25),

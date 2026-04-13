@@ -10,10 +10,10 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { contentAssets } from "./content.js";
-import { shareChannelEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { contentAssets } from "./content";
+import { shareChannelEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Share events — one row per content share (PRD §4.5.1 step 7, §10.1, §6.3)

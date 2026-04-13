@@ -1,8 +1,8 @@
 import { relations, sql } from "drizzle-orm";
 import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { auditActionEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { auditActionEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Audit logs (PRD §13.3 audit logging)

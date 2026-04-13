@@ -120,8 +120,8 @@ export function HealthInsuranceBuilder(): JSX.Element {
   ]);
 
   const generate = async (): Promise<void> => {
-    if (!customerName.trim()) return toast.error("Customer name required");
-    if (family.length === 0) return toast.error("Add at least one member");
+    if (!customerName.trim()) { toast.error("Customer name required"); return; }
+    if (family.length === 0) { toast.error("Add at least one member"); return; }
     setSubmitting(true);
     try {
       const token = await getToken();

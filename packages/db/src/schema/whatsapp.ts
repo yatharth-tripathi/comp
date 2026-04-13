@@ -8,14 +8,14 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { leads } from "./leads.js";
+import { leads } from "./leads";
 import {
   whatsappDirectionEnum,
   whatsappMessageTypeEnum,
   whatsappStatusEnum,
-} from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+} from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // WhatsApp templates (PRD §10) — pre-approved message templates at Meta

@@ -100,7 +100,7 @@ onboardingRoutes.post("/", zValidator("json", completeOnboardingSchema), async (
         where: eq(schema.tenants.clerkOrgId, clerkOrgId),
         columns: { id: true, name: true, slug: true },
       })) ??
-      null;
+      undefined;
     if (!tenant) throw new Error("Tenant upsert failed");
 
     await db

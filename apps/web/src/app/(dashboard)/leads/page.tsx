@@ -37,8 +37,8 @@ interface TodayData {
     aiSuggestedNextAction: string | null;
     lastActivityAt: string | null;
   }>;
-  today: typeof TodayData.prototype.overdue;
-  hotLeads: typeof TodayData.prototype.overdue;
+  today: TodayData["overdue"];
+  hotLeads: TodayData["overdue"];
   summary: {
     overdueCount: number;
     todayCount: number;

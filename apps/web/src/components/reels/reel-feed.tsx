@@ -85,7 +85,7 @@ export function ReelFeed({ initialReels }: ReelFeedProps): JSX.Element {
       } else if (e.key === "c" || e.key === "C") {
         const idx = CAPTION_LANGUAGES.indexOf(captionLanguage as (typeof CAPTION_LANGUAGES)[number]);
         const next = CAPTION_LANGUAGES[(idx + 1) % CAPTION_LANGUAGES.length];
-        setCaptionLanguage(next);
+        setCaptionLanguage(next ?? "en");
       }
     };
     window.addEventListener("keydown", onKeyDown);

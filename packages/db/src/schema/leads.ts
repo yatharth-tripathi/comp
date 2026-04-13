@@ -8,9 +8,9 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { leadActivityKindEnum, leadStageEnum } from "./enums.js";
-import { tenants } from "./tenants.js";
-import { users } from "./users.js";
+import { leadActivityKindEnum, leadStageEnum } from "./enums";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 // ---------------------------------------------------------------------------
 // Leads (PRD §9) — lightweight CRM scoped per tenant + per agent

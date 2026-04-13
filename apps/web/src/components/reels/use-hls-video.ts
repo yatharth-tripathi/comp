@@ -15,17 +15,17 @@ export function useHlsVideo(hlsUrl: string | null, mp4Fallback: string | null) {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !hlsUrl) return;
+    if (!video || !hlsUrl) return undefined;
 
     // Native HLS (Safari / iOS)
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
-      return;
+      return undefined;
     }
 
     if (Hls.isSupported()) {
       const hls = new Hls({
-        maxBufferLength: 10, // seconds — keeps memory low across many preloaded reels
+        maxBufferLength: 10,
         maxMaxBufferLength: 20,
         lowLatencyMode: false,
         enableWorker: true,
@@ -55,6 +55,7 @@ export function useHlsVideo(hlsUrl: string | null, mp4Fallback: string | null) {
 
     // Last resort: progressive MP4
     if (mp4Fallback) video.src = mp4Fallback;
+    return undefined;
   }, [hlsUrl, mp4Fallback]);
 
   return videoRef;

@@ -89,8 +89,8 @@ export function HomeLoanBuilder(): JSX.Element {
   }, [customerName, propertyValue, loanAmount, tenure, rate]);
 
   const generate = async (): Promise<void> => {
-    if (!customerName.trim()) return toast.error("Customer name required");
-    if (loanAmount > propertyValue) return toast.error("Loan amount cannot exceed property value");
+    if (!customerName.trim()) { toast.error("Customer name required"); return; }
+    if (loanAmount > propertyValue) { toast.error("Loan amount cannot exceed property value"); return; }
     setSubmitting(true);
     try {
       const token = await getToken();
