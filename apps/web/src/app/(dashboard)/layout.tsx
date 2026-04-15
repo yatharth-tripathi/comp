@@ -1,5 +1,3 @@
-import { UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -12,6 +10,8 @@ import {
   Sparkles,
   Video,
 } from "lucide-react";
+import { UserMenu } from "@/components/auth/user-menu";
+import { getServerSession } from "@/lib/session";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: Home },
@@ -29,9 +29,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }): Promise<JSX.Element> {
-  const { userId, orgId } = await auth();
-  if (!userId) redirect("/sign-in");
-  if (!orgId) redirect("/onboarding");
+  const session = await getServerSession();
+  if (!session) redirect("/sign-in");
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -59,7 +58,7 @@ export default async function DashboardLayout({
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b bg-background px-6">
           <div className="text-sm text-muted-foreground">Welcome back</div>
-          <UserButton afterSignOutUrl="/" />
+          <UserMenu />
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>

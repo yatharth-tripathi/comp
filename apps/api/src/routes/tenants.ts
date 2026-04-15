@@ -57,8 +57,8 @@ tenantRoutes.patch(
 );
 
 // ---------------------------------------------------------------------------
-// POST /tenants — super_admin only. Tenant provisioning is normally handled by
-// the Clerk organization webhook, but this route exists for manual bootstrap.
+// POST /tenants — super_admin only. Manual tenant provisioning. Normal
+// tenant creation happens at /auth/signup.
 // ---------------------------------------------------------------------------
 tenantRoutes.post(
   "/",
@@ -71,7 +71,6 @@ tenantRoutes.post(
     const [tenant] = await db
       .insert(schema.tenants)
       .values({
-        clerkOrgId: `manual-${body.slug}`, // will be replaced by real id via webhook
         slug: body.slug,
         name: body.name,
         legalName: body.legalName,

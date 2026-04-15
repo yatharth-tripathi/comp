@@ -7,7 +7,8 @@ import {
   updateUserProfileSchema,
 } from "@salescontent/schemas";
 import { authMiddleware, requireRole } from "../middleware/auth.js";
-import { NotFoundError } from "../lib/errors.js";
+import { ConflictError, NotFoundError } from "../lib/errors.js";
+import { hashPassword } from "../lib/session.js";
 
 export const userRoutes = new Hono();
 
@@ -87,9 +88,8 @@ userRoutes.get(
 );
 
 // ---------------------------------------------------------------------------
-// POST /users/invite — create a local user row for an inbound Clerk user.
-// Used by the frontend after the Clerk invite flow; the actual Clerk invite
-// goes through @clerk/backend on the web app.
+// POST /users/invite — create a teammate with an initial password that the
+// admin communicates out-of-band. The invitee can sign in with it immediately.
 // ---------------------------------------------------------------------------
 userRoutes.post(
   "/invite",
@@ -100,18 +100,24 @@ userRoutes.post(
     const tenantId = c.get("tenantId");
     const body = c.req.valid("json");
 
-    // Placeholder Clerk user id — the webhook will reconcile with the real
-    // clerkUserId once the invitee accepts.
-    const placeholderClerkId = `pending:${body.email ?? body.phone ?? crypto.randomUUID()}`;
+    const existing = await db.query.users.findFirst({
+      where: and(eq(schema.users.tenantId, tenantId), eq(schema.users.email, body.email)),
+      columns: { id: true },
+    });
+    if (existing) {
+      throw new ConflictError("A user with this email already exists in the tenant");
+    }
+
+    const passwordHash = await hashPassword(body.initialPassword);
 
     const [user] = await db
       .insert(schema.users)
       .values({
         tenantId,
-        clerkUserId: placeholderClerkId,
+        email: body.email,
+        passwordHash,
         firstName: body.firstName,
         lastName: body.lastName,
-        email: body.email,
         phone: body.phone,
         role: body.role,
         branchId: body.branchId,
@@ -121,7 +127,7 @@ userRoutes.post(
         preferredLanguages: body.preferredLanguages,
         assignedProducts: body.assignedProducts,
         assignedGeographies: body.assignedGeographies,
-        active: false, // flipped true when Clerk webhook confirms
+        active: true,
       })
       .returning();
 
@@ -135,7 +141,9 @@ userRoutes.post(
       metadata: { email: body.email, phone: body.phone, role: body.role },
     });
 
-    return c.json({ data: user }, 201);
+    const { passwordHash: _hidden, ...safeUser } = user;
+    void _hidden;
+    return c.json({ data: safeUser }, 201);
   },
 );
 

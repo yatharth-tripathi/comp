@@ -21,9 +21,6 @@ export const tenants = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
-    // Clerk organization ID — source of truth for auth/org membership
-    clerkOrgId: text("clerk_org_id").notNull(),
-
     slug: text("slug").notNull(), // `hdfc-life`
     name: text("name").notNull(),
     legalName: text("legal_name"),
@@ -65,7 +62,6 @@ export const tenants = pgTable(
   },
   (table) => ({
     slugUnique: uniqueIndex("tenants_slug_unique").on(table.slug),
-    clerkOrgUnique: uniqueIndex("tenants_clerk_org_unique").on(table.clerkOrgId),
     customDomainUnique: uniqueIndex("tenants_custom_domain_unique").on(table.customDomain),
     suspendedIdx: index("tenants_suspended_idx").on(table.suspended),
   }),

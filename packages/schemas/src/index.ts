@@ -6,6 +6,7 @@
 export * from "./common.js";
 export * from "./tenant.js";
 export * from "./user.js";
+export * from "./auth.js";
 export * from "./onboarding.js";
 export * from "./content.js";
 export * from "./reel.js";

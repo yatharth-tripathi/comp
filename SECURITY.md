@@ -9,17 +9,17 @@
 - **Database:** Neon Postgres (serverless, encrypted at rest, TLS in transit)
 - **Cache:** Upstash Redis (encrypted, TLS)
 - **Storage:** Cloudflare R2 (encrypted at rest, TLS in transit)
-- **Auth:** Clerk (SOC2 Type II, HIPAA-ready)
+- **Auth:** Self-hosted email + password — bcrypt password hashing (12 rounds default), HS256 JWT sessions, HttpOnly cookies on the web, `Authorization: Bearer` on the API
 - **AI:** Anthropic Claude (SOC2 Type II, no training on API data)
 
 ## Authentication & authorization
 
 | Layer | Mechanism |
 |---|---|
-| Web frontend | Clerk middleware — session JWT verified on every request |
-| API (internal) | Clerk JWT verification via `@clerk/backend` + tenant resolution |
+| Web frontend | Next.js middleware — verifies the HS256 JWT from the HttpOnly `sc_session` cookie on every non-public route via `jose` |
+| API (internal) | HS256 JWT verification via `jose` + tenant + user lookup (userId, tenantId, role claims) |
 | API (public) | SHA-256 hashed API key lookup in `api_keys` table |
-| Webhooks | Per-service signature verification (Clerk=Svix, Mux=HMAC-SHA256, WhatsApp=HMAC-SHA256) |
+| Webhooks | Per-service signature verification (Mux=HMAC-SHA256, WhatsApp=HMAC-SHA256) |
 | RBAC | 7-level role hierarchy: super_admin > enterprise_admin > content_manager > branch_manager > senior_agent > sales_agent > trainee |
 | Rate limiting | Upstash Ratelimit sliding window — global 120/min + per-route overrides (Copilot 40/min, Show Me 6/min) |
 
@@ -53,7 +53,7 @@
 | # | Risk | Mitigation |
 |---|---|---|
 | API1 | Broken Object Level Authorization | tenant_id filter on EVERY query |
-| API2 | Broken Authentication | Clerk JWT + API key hash + webhook signatures |
+| API2 | Broken Authentication | bcrypt password hashing + HS256 JWT session + API key hash + webhook signatures |
 | API3 | Broken Object Property Level Authorization | Zod input validation on every route |
 | API4 | Unrestricted Resource Consumption | Upstash rate limiting + Claude daily USD cap |
 | API5 | Broken Function Level Authorization | `requireRole()` guard on every sensitive route |
@@ -61,7 +61,7 @@
 | API7 | Server Side Request Forgery | No user-controlled URL fetches |
 | API8 | Security Misconfiguration | Secure headers, CORS lockdown, env validation |
 | API9 | Improper Inventory Management | All routes audited, documented in this file |
-| API10 | Unsafe Consumption of Third-Party APIs | Webhook signatures verified for Clerk, Mux, WhatsApp |
+| API10 | Unsafe Consumption of Third-Party APIs | Webhook signatures verified for Mux, WhatsApp |
 
 ## Rate limits summary
 
@@ -82,7 +82,7 @@ Rotate quarterly. After rotation, restart all Railway + Vercel deployments.
 
 | Secret | Location | Rotation method |
 |---|---|---|
-| `CLERK_SECRET_KEY` | Clerk Dashboard | Regenerate in API Keys |
+| `JWT_SECRET` | `.env` (`openssl rand -base64 48`) | Replace + redeploy; every existing session is invalidated |
 | `ANTHROPIC_API_KEY` | Anthropic Console | Create new, delete old |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Console | Reset in DB settings |
 | `R2_SECRET_ACCESS_KEY` | Cloudflare Dashboard | Create new R2 API token |

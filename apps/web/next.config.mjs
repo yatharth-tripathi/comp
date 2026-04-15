@@ -13,7 +13,6 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
       { protocol: "https", hostname: "**.mux.com" },
-      { protocol: "https", hostname: "img.clerk.com" },
     ],
   },
   headers: async () => [

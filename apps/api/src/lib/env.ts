@@ -14,9 +14,9 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
   // Auth
-  CLERK_SECRET_KEY: z.string().min(1, "CLERK_SECRET_KEY is required"),
-  CLERK_PUBLISHABLE_KEY: z.string().min(1, "CLERK_PUBLISHABLE_KEY is required"),
-  CLERK_WEBHOOK_SECRET: z.string().optional(),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 chars"),
+  JWT_EXPIRES_IN_SECONDS: z.coerce.number().int().min(60).default(60 * 60 * 24 * 7),
+  BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
 
   // AI
   ANTHROPIC_API_KEY: z.string().default(""),

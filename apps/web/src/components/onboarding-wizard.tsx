@@ -1,16 +1,15 @@
 "use client";
 
-import { useAuth, useOrganization, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/auth-client";
 
-const PLAN_TIERS = ["starter", "growth", "professional", "enterprise"] as const;
 const LANGUAGES = [
   { code: "en", label: "English" },
   { code: "hi", label: "Hindi" },
@@ -25,40 +24,27 @@ const LANGUAGES = [
 ];
 
 interface FormState {
-  // Company
-  companyName: string;
-  companyLegalName: string;
-  planTier: (typeof PLAN_TIERS)[number];
-  seatsPurchased: number;
-  // Profile
   firstName: string;
   lastName: string;
   phone: string;
   employeeCode: string;
   designation: string;
   preferredLanguages: string[];
-  // Work
   branchName: string;
-  assignedProducts: string; // comma-separated input
+  assignedProducts: string;
   assignedGeographies: string;
 }
 
 export function OnboardingWizard(): JSX.Element {
   const { getToken } = useAuth();
-  const { organization } = useOrganization();
-  const { user } = useUser();
   const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>({
-    companyName: organization?.name ?? "",
-    companyLegalName: "",
-    planTier: "growth",
-    seatsPurchased: 50,
-    firstName: user?.firstName ?? "",
-    lastName: user?.lastName ?? "",
-    phone: user?.primaryPhoneNumber?.phoneNumber ?? "",
+    firstName: "",
+    lastName: "",
+    phone: "",
     employeeCode: "",
     designation: "",
     preferredLanguages: ["en"],
@@ -66,6 +52,37 @@ export function OnboardingWizard(): JSX.Element {
     assignedProducts: "",
     assignedGeographies: "",
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrate(): Promise<void> {
+      try {
+        const token = await getToken();
+        if (!token) return;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787";
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: { authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const body = (await res.json()) as {
+          data?: { user?: { firstName?: string | null; lastName?: string | null } };
+        };
+        if (cancelled) return;
+        setForm((prev) => ({
+          ...prev,
+          firstName: prev.firstName || body.data?.user?.firstName || "",
+          lastName: prev.lastName || body.data?.user?.lastName || "",
+        }));
+      } catch {
+        // best-effort prefill
+      }
+    }
+    void hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, [getToken]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]): void =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -91,7 +108,7 @@ export function OnboardingWizard(): JSX.Element {
     setSubmitting(true);
     try {
       const token = await getToken();
-      if (!token) throw new Error("No auth token available");
+      if (!token) throw new Error("Session expired. Please sign in again.");
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787";
       const res = await fetch(`${apiUrl}/api/onboarding`, {
@@ -101,12 +118,6 @@ export function OnboardingWizard(): JSX.Element {
           authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          company: {
-            name: form.companyName,
-            legalName: form.companyLegalName || undefined,
-            planTier: form.planTier,
-            seatsPurchased: form.seatsPurchased,
-          },
           profile: {
             firstName: form.firstName,
             lastName: form.lastName || undefined,
@@ -150,69 +161,14 @@ export function OnboardingWizard(): JSX.Element {
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>Let&apos;s set up your workspace</CardTitle>
+        <CardTitle>Let&apos;s finish setting up</CardTitle>
         <CardDescription>
-          Step {step} of 3 —{" "}
-          {step === 1 ? "Company" : step === 2 ? "Your profile" : "Work scope"}
+          Step {step} of 2 — {step === 1 ? "Your profile" : "Work scope"}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
         {step === 1 && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company name</Label>
-              <Input
-                id="companyName"
-                value={form.companyName}
-                onChange={(e) => update("companyName", e.target.value)}
-                placeholder="HDFC Life Insurance"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="legalName">Legal name (optional)</Label>
-              <Input
-                id="legalName"
-                value={form.companyLegalName}
-                onChange={(e) => update("companyLegalName", e.target.value)}
-                placeholder="HDFC Standard Life Insurance Co. Ltd."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Plan tier</Label>
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-                {PLAN_TIERS.map((tier) => (
-                  <button
-                    key={tier}
-                    type="button"
-                    onClick={() => update("planTier", tier)}
-                    className={`rounded-md border px-3 py-2 text-sm capitalize transition ${
-                      form.planTier === tier
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-input hover:bg-accent"
-                    }`}
-                  >
-                    {tier}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="seats">Seats purchased</Label>
-              <Input
-                id="seats"
-                type="number"
-                min={1}
-                value={form.seatsPurchased}
-                onChange={(e) =>
-                  update("seatsPurchased", parseInt(e.target.value || "50", 10))
-                }
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -282,7 +238,7 @@ export function OnboardingWizard(): JSX.Element {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="branchName">Branch name (optional)</Label>
@@ -322,7 +278,7 @@ export function OnboardingWizard(): JSX.Element {
           >
             Back
           </Button>
-          {step < 3 ? (
+          {step < 2 ? (
             <Button onClick={() => setStep((s) => s + 1)}>Next</Button>
           ) : (
             <Button onClick={submit} disabled={submitting}>

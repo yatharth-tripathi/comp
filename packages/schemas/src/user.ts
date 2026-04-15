@@ -13,7 +13,8 @@ export const roleSchema = z.enum([
 export type Role = z.infer<typeof roleSchema>;
 
 export const inviteUserSchema = z.object({
-  email: z.string().email().optional(),
+  email: z.string().email().max(254).toLowerCase().trim(),
+  initialPassword: z.string().min(8).max(128),
   phone: indianPhoneSchema.optional(),
   firstName: z.string().min(1).max(60),
   lastName: z.string().max(60).optional(),

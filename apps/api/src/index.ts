@@ -11,7 +11,7 @@ import { errorHandler } from "./middleware/error-handler.js";
 import { rateLimitMiddleware } from "./middleware/rate-limit.js";
 import { adminRoutes } from "./routes/admin.js";
 import { apiKeyRoutes } from "./routes/api-keys.js";
-import { clerkWebhookRoutes } from "./routes/clerk-webhook.js";
+import { authRoutes } from "./routes/auth.js";
 import { contentRoutes } from "./routes/content.js";
 import { contentTagsRoutes } from "./routes/content-tags.js";
 import { copilotRoutes } from "./routes/copilot.js";
@@ -70,15 +70,14 @@ app.route("/public/shares", publicShareRoutes);
 app.route("/public/illustrations", publicIllustrationRoutes);
 
 // Webhooks — NOT behind auth, but signature-verified inside the route
-app.route("/webhooks/clerk", clerkWebhookRoutes);
 app.route("/webhooks/mux", muxWebhookRoutes);
 app.route("/webhooks/whatsapp", whatsappWebhookRoutes);
 
-// Onboarding — NOT behind authMiddleware because the user row doesn't exist
-// yet; the handler verifies the Clerk JWT directly.
-app.route("/api/onboarding", onboardingRoutes);
+// Auth — signup / login are public; logout + me require a valid JWT
+app.route("/api/auth", authRoutes);
 
 // Authed API surface
+app.route("/api/onboarding", onboardingRoutes);
 app.route("/api/tenants", tenantRoutes);
 app.route("/api/users", userRoutes);
 app.route("/api/content", contentRoutes);

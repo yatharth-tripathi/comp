@@ -17,7 +17,6 @@ declare module "hono" {
     ctx: RequestContext;
     tenantId: string;
     userId: string;
-    clerkUserId: string;
     role: string;
   }
 }

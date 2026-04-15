@@ -15,9 +15,8 @@ import { roleEnum } from "./enums";
 import { tenantOrgUnits, tenants } from "./tenants";
 
 // ---------------------------------------------------------------------------
-// Users — one row per Clerk user, scoped by tenant.
-// A single Clerk user CAN belong to multiple tenants (multi-org) via
-// tenant_memberships; this row holds tenant-local agent data like XP and roles.
+// Users — one row per login, scoped by tenant.
+// Email is the login identifier and is unique within a tenant.
 // ---------------------------------------------------------------------------
 export const users = pgTable(
   "users",
@@ -27,12 +26,11 @@ export const users = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
 
-    clerkUserId: text("clerk_user_id").notNull(),
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
 
-    // Profile (mirrored from Clerk; Clerk is source of truth)
     firstName: text("first_name"),
     lastName: text("last_name"),
-    email: text("email"),
     phone: text("phone"),
     avatarUrl: text("avatar_url"),
 
@@ -81,9 +79,9 @@ export const users = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (table) => ({
-    tenantClerkUnique: uniqueIndex("users_tenant_clerk_unique").on(
+    tenantEmailUnique: uniqueIndex("users_tenant_email_unique").on(
       table.tenantId,
-      table.clerkUserId,
+      table.email,
     ),
     tenantIdx: index("users_tenant_idx").on(table.tenantId),
     roleIdx: index("users_tenant_role_idx").on(table.tenantId, table.role),

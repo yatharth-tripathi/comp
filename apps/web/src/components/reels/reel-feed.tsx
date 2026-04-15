@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth, useSessionUser } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ const CAPTION_LANGUAGES = ["en", "hi", "mr", "ta", "te", "gu", "bn"] as const;
  */
 export function ReelFeed({ initialReels }: ReelFeedProps): JSX.Element {
   const { getToken } = useAuth();
-  const { user } = useUser();
+  const { data: sessionMe } = useSessionUser();
   const router = useRouter();
   const [reels, setReels] = useState<FeedReel[]>(initialReels);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -165,8 +165,12 @@ export function ReelFeed({ initialReels }: ReelFeedProps): JSX.Element {
             recipientName: opts.recipientName,
             recipientPhone: opts.recipientPhone || undefined,
             personalizationSnapshot: {
-              agentName: user?.fullName ?? "",
-              agentPhone: user?.primaryPhoneNumber?.phoneNumber ?? "",
+              agentName: sessionMe?.user
+                ? [sessionMe.user.firstName, sessionMe.user.lastName]
+                    .filter(Boolean)
+                    .join(" ")
+                : "",
+              agentPhone: sessionMe?.user?.phone ?? "",
             },
           }),
         },

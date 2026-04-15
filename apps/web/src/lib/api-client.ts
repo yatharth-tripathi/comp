@@ -1,9 +1,9 @@
-import { auth } from "@clerk/nextjs/server";
+import { getServerSessionToken } from "./session";
 
 /**
  * Typed fetch wrapper for the backend Hono API.
- * Resolves the Clerk session token on the server and forwards it as a Bearer
- * token. On the client, we pass through document.cookie (__session cookie).
+ * On the server, reads the session cookie and forwards it as a Bearer token.
+ * On the client, pass `token` explicitly (see useAuth().getToken()).
  */
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787";
@@ -27,10 +27,9 @@ export class ApiClientError extends Error {
   }
 }
 
-async function resolveServerToken(): Promise<string | undefined> {
+function resolveServerToken(): string | undefined {
   try {
-    const session = await auth();
-    return (await session.getToken()) ?? undefined;
+    return getServerSessionToken();
   } catch {
     return undefined;
   }
@@ -42,7 +41,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
 
   let token = options.token;
   if (!token && typeof window === "undefined") {
-    token = await resolveServerToken();
+    token = resolveServerToken();
   }
   if (token) headers.set("authorization", `Bearer ${token}`);
 

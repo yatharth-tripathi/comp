@@ -2,59 +2,235 @@
 @tailwind components;
 @tailwind utilities;
 
+/* -----------------------------------------------------------------------------
+   SalesContent AI — Design Tokens
+   Aesthetic: "Precision Instrument" (see CLAUDE.md §5)
+   Two token layers coexist:
+   1. Brand tokens (--ink, --parchment, --saffron, …) — used by new surfaces
+   2. Legacy shadcn HSL tokens (--background, --primary, …) — preserved so
+      existing components in src/components/ui/ keep working until each
+      surface is migrated. Values re-pointed to the brand palette.
+----------------------------------------------------------------------------- */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --primary: 222 76% 51%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 199 89% 48%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 222 76% 51%;
-    --radius: 0.5rem;
+    /* — Brand palette (raw) — */
+    --ink: 10 14 26;                 /*  #0A0E1A  */
+    --ink-raised: 17 22 42;          /*  #11162A  */
+    --ink-deep: 5 8 18;              /*  #050812  */
+    --ink-line: 30 36 56;            /*  #1E2438  */
+    --parchment: 245 240 230;        /*  #F5F0E6  */
+    --parchment-2: 236 228 212;      /*  #ECE4D4  */
+    --parchment-line: 220 210 190;   /*  #DCD2BE  */
+    --saffron: 232 146 60;           /*  #E8923C  */
+    --saffron-bright: 255 168 74;    /*  #FFA84A  */
+    --saffron-mute: 184 104 42;      /*  #B8682A  */
+    --signal: 109 223 167;           /*  #6DDFA7  */
+    --signal-mute: 47 138 99;        /*  #2F8A63  */
+    --ember: 232 106 92;             /*  #E86A5C  */
+    --fog: 139 146 166;              /*  #8B92A6  */
+    --fog-dim: 92 99 120;            /*  #5C6378  */
+    --mute-cream: 107 98 86;         /*  #6B6256  */
+
+    /* — Typography — */
+    --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* — Shadcn compatibility (repoint to brand) — default LIGHT theme maps to parchment */
+    --background: 40 37 90%;            /* ~parchment */
+    --foreground: 223 45% 7%;           /* ~ink */
+    --muted: 39 30 86%;                 /* parchment-2 */
+    --muted-foreground: 30 12 38%;      /* mute-cream */
+    --popover: 40 37 90%;
+    --popover-foreground: 223 45% 7%;
+    --card: 40 37 90%;
+    --card-foreground: 223 45% 7%;
+    --border: 35 28 80%;                /* parchment-line */
+    --input: 35 28 80%;
+    --primary: 27 79% 57%;              /* saffron */
+    --primary-foreground: 223 45% 7%;
+    --secondary: 223 45% 7%;            /* ink */
+    --secondary-foreground: 40 37 90%;
+    --accent: 39 30 86%;
+    --accent-foreground: 223 45% 7%;
+    --destructive: 6 73% 64%;           /* ember */
+    --destructive-foreground: 40 37 90%;
+    --ring: 27 79% 57%;                 /* saffron focus ring */
+    --radius: 0.375rem;                 /* tighter than shadcn default */
   }
 
-  .dark {
-    --background: 222.2 47.4% 6%;
-    --foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --popover: 222.2 47.4% 6%;
-    --popover-foreground: 210 40% 98%;
-    --card: 222.2 47.4% 8%;
-    --card-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --primary: 222 76% 55%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 199 89% 48%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 222 76% 55%;
+  /* Dark surfaces (dashboard app surfaces, landing default) */
+  .dark,
+  [data-theme="ink"] {
+    --background: 223 45% 7%;           /* ink */
+    --foreground: 40 37 90%;            /* parchment */
+    --muted: 224 40% 11%;               /* ink-raised */
+    --muted-foreground: 222 14% 60%;    /* fog */
+    --popover: 224 40% 11%;
+    --popover-foreground: 40 37 90%;
+    --card: 224 40% 11%;
+    --card-foreground: 40 37 90%;
+    --border: 224 30% 17%;              /* ink-line */
+    --input: 224 30% 17%;
+    --primary: 27 79% 57%;              /* saffron */
+    --primary-foreground: 223 45% 7%;
+    --secondary: 40 37 90%;             /* parchment */
+    --secondary-foreground: 223 45% 7%;
+    --accent: 224 30% 17%;
+    --accent-foreground: 40 37 90%;
+    --destructive: 6 73% 64%;
+    --destructive-foreground: 40 37 90%;
+    --ring: 27 79% 57%;
   }
 
   * {
     @apply border-border;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    font-family: var(--font-body);
+    font-feature-settings: "ss01", "cv11", "calt" 1;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  ::selection {
+    background: rgb(var(--saffron) / 0.35);
+    color: rgb(var(--parchment));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--saffron));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Brand utilities
+----------------------------------------------------------------------------- */
+
+@layer utilities {
+  /* Film-grain overlay — fixed, subtle, pointer-events-none */
+  .grain-overlay::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Saffron glow — single radial from top-center */
+  .spotlight-top::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, rgb(var(--saffron) / 0.14), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 50% 0%, rgb(var(--saffron-bright) / 0.06), transparent 70%);
+  }
+
+  /* Precision hairline grid — visible only on ink backgrounds */
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, rgb(var(--ink-line) / 0.6) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--ink-line) / 0.4) 1px, transparent 1px);
+    background-size: 96px 96px;
+  }
+
+  /* Hairline rule */
+  .rule-ink {
+    height: 1px;
+    background: rgb(var(--ink-line));
+  }
+  .rule-parchment {
+    height: 1px;
+    background: rgb(var(--parchment-line));
+  }
+
+  /* Mono label — used for 01 / 02 / 03 and eyebrow text */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;   /* 11px */
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Display type helper */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+  }
+
+  /* Tabular nums on metrics */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+
+  /* Staggered reveal (used with motion variants) */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .reveal {
+    animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      animation: none;
+    }
+  }
+
+  /* Devanagari watermark */
+  .devanagari-watermark {
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 22vw, 22rem);
+    line-height: 0.85;
+    color: rgb(var(--parchment) / 0.035);
+    letter-spacing: -0.04em;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Corner crosshairs on key cards */
+  .crosshair-corners {
+    position: relative;
+  }
+  .crosshair-corners::before,
+  .crosshair-corners::after {
+    content: "+";
+    position: absolute;
+    font-family: var(--font-mono);
+    color: rgb(var(--saffron) / 0.7);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .crosshair-corners::before {
+    top: -6px;
+    left: -6px;
+  }
+  .crosshair-corners::after {
+    bottom: -6px;
+    right: -6px;
   }
 }

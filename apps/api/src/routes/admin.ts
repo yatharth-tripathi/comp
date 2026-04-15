@@ -5,6 +5,7 @@ import { and, db, desc, eq, schema, sql } from "@salescontent/db";
 import { bulkInviteSchema } from "@salescontent/schemas";
 import { authMiddleware, requireRole } from "../middleware/auth.js";
 import { NotFoundError } from "../lib/errors.js";
+import { hashPassword } from "../lib/session.js";
 import { dpdpErasureHandler } from "../middleware/security.js";
 
 export const adminRoutes = new Hono();
@@ -146,16 +147,16 @@ adminRoutes.post(
     for (let i = 0; i < rows.length; i += 1) {
       const row = rows[i]!;
       try {
-        const placeholderClerkId = `pending:${row.email ?? row.phone ?? crypto.randomUUID()}`;
+        const passwordHash = await hashPassword(row.initialPassword);
 
         const [user] = await db
           .insert(schema.users)
           .values({
             tenantId,
-            clerkUserId: placeholderClerkId,
+            email: row.email,
+            passwordHash,
             firstName: row.firstName,
             lastName: row.lastName,
-            email: row.email,
             phone: row.phone,
             role: row.role,
             branchId: row.branchId,
@@ -165,7 +166,7 @@ adminRoutes.post(
             preferredLanguages: row.preferredLanguages,
             assignedProducts: row.assignedProducts,
             assignedGeographies: row.assignedGeographies,
-            active: false,
+            active: true,
           })
           .onConflictDoNothing()
           .returning({ id: schema.users.id });

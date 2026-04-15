@@ -1,87 +1,47 @@
-import { createClerkClient, verifyToken } from "@clerk/backend";
 import type { MiddlewareHandler } from "hono";
 import { db, eq, schema } from "@salescontent/db";
-import { env } from "../lib/env.js";
+import { verifySessionToken } from "../lib/session.js";
 import { ForbiddenError, UnauthorizedError } from "../lib/errors.js";
 
-const config = env();
-const clerk = createClerkClient({ secretKey: config.CLERK_SECRET_KEY });
-
 /**
- * Auth middleware — verifies the Clerk session JWT and loads the local user
+ * Auth middleware — verifies the HS256 session JWT and loads the local user
  * row so downstream routes can read tenant/role without hitting the DB again.
  *
- * Accepts:
- *   - `Authorization: Bearer <jwt>` (preferred, works for mobile + server-to-server)
- *   - `__session` cookie (set by Clerk on the web)
- *
- * Sets on context: clerkUserId, tenantId, userId, role.
+ * Accepts the JWT via `Authorization: Bearer <token>` (the only transport —
+ * the API is stateless and does not set cookies).
  */
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
   const authHeader = c.req.header("authorization");
-  const bearer = authHeader?.toLowerCase().startsWith("bearer ")
+  const token = authHeader?.toLowerCase().startsWith("bearer ")
     ? authHeader.slice(7).trim()
     : undefined;
-
-  const cookieHeader = c.req.header("cookie") ?? "";
-  const sessionCookie = cookieHeader
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith("__session="))
-    ?.split("=")[1];
-
-  const token = bearer ?? sessionCookie;
   if (!token) throw new UnauthorizedError("Missing session token");
 
-  let clerkUserId: string;
-  let clerkOrgId: string | undefined;
+  let session: Awaited<ReturnType<typeof verifySessionToken>>;
   try {
-    const payload = await verifyToken(token, {
-      secretKey: config.CLERK_SECRET_KEY,
-    });
-    clerkUserId = payload.sub;
-    clerkOrgId =
-      typeof payload.org_id === "string"
-        ? payload.org_id
-        : typeof (payload as Record<string, unknown>).org_id === "string"
-          ? ((payload as Record<string, unknown>).org_id as string)
-          : undefined;
-  } catch (error) {
+    session = await verifySessionToken(token);
+  } catch {
     throw new UnauthorizedError("Invalid or expired session token");
   }
 
-  if (!clerkOrgId) {
-    // The user is authenticated but has not selected an organization.
-    // Fall back to looking up the active org via Clerk for non-browser flows.
-    const memberships = await clerk.users.getOrganizationMembershipList({
-      userId: clerkUserId,
-    });
-    const firstOrg = memberships.data[0]?.organization.id;
-    if (!firstOrg) {
-      throw new ForbiddenError("User is not a member of any organization");
-    }
-    clerkOrgId = firstOrg;
-  }
-
-  // Resolve the tenant row
   const tenant = await db.query.tenants.findFirst({
-    where: eq(schema.tenants.clerkOrgId, clerkOrgId),
+    where: eq(schema.tenants.id, session.tenantId),
     columns: { id: true, suspended: true },
   });
-  if (!tenant) throw new ForbiddenError("Tenant not provisioned for this organization");
+  if (!tenant) throw new ForbiddenError("Tenant not found");
   if (tenant.suspended) throw new ForbiddenError("Tenant is suspended");
 
-  // Resolve the local user row
   const user = await db.query.users.findFirst({
-    where: (users, { and, eq: e }) =>
-      and(e(users.tenantId, tenant.id), e(users.clerkUserId, clerkUserId)),
-    columns: { id: true, role: true, active: true },
+    where: eq(schema.users.id, session.userId),
+    columns: { id: true, tenantId: true, role: true, active: true },
   });
   if (!user || !user.active) {
-    throw new ForbiddenError("User not active in this tenant");
+    throw new ForbiddenError("User not active");
+  }
+  if (user.tenantId !== tenant.id) {
+    throw new ForbiddenError("User does not belong to this tenant");
   }
 
-  c.set("clerkUserId", clerkUserId);
   c.set("tenantId", tenant.id);
   c.set("userId", user.id);
   c.set("role", user.role);
@@ -91,7 +51,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
 /**
  * Role guard — use via `requireRole('enterprise_admin', 'content_manager')`.
- * Roles are ordered hierarchically for super_admin fast-path.
+ * super_admin bypasses all role checks.
  */
 export function requireRole(...allowed: string[]): MiddlewareHandler {
   const set = new Set(allowed);

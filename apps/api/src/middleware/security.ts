@@ -10,7 +10,7 @@ import { env } from "../lib/env.js";
  *
  * Checklist from OWASP API Security Top 10 (2023):
  *   ✅ Broken Object Level Authorization → tenant_id filter on every query
- *   ✅ Broken Authentication → Clerk JWT verify + API key hash
+ *   ✅ Broken Authentication → HS256 JWT verify + bcrypt password hashing + API key hash
  *   ✅ Broken Object Property Level Authorization → Zod input validation
  *   ✅ Unrestricted Resource Consumption → Upstash rate limiting per route
  *   ✅ Broken Function Level Authorization → requireRole() guard
@@ -18,7 +18,7 @@ import { env } from "../lib/env.js";
  *   ✅ Security Misconfiguration → this file + secure headers from Hono
  *   ✅ Injection → parameterized queries via Drizzle ORM (no raw SQL)
  *   ✅ Improper Assets Management → all routes audited via c.var.audit()
- *   ✅ Unsafe API Consumption → webhook signatures verified (Clerk/Mux/WA)
+ *   ✅ Unsafe API Consumption → webhook signatures verified (Mux, WhatsApp)
  */
 
 /**
@@ -133,7 +133,7 @@ export async function eraseUserData(params: {
 /**
  * Secret rotation checklist — review quarterly:
  *
- * 1. CLERK_SECRET_KEY — rotate in Clerk dashboard, update .env
+ * 1. JWT_SECRET — rotate and redeploy; every existing session becomes invalid
  * 2. ANTHROPIC_API_KEY — rotate in Anthropic console
  * 3. UPSTASH_REDIS_REST_TOKEN — rotate in Upstash console
  * 4. QSTASH_TOKEN — rotate in Upstash console
@@ -142,8 +142,7 @@ export async function eraseUserData(params: {
  * 7. WHATSAPP_ACCESS_TOKEN — regenerate system user token in Meta
  * 8. WHATSAPP_APP_SECRET — cannot rotate without re-registering the app
  * 9. API_INTERNAL_SECRET — generate new, update both api and web .env
- * 10. CLERK_WEBHOOK_SECRET — re-create webhook in Clerk, update .env
- * 11. MUX_WEBHOOK_SECRET — re-create webhook in Mux, update .env
+ * 10. MUX_WEBHOOK_SECRET — re-create webhook in Mux, update .env
  *
  * After rotation: restart all Railway + Vercel deployments.
  */

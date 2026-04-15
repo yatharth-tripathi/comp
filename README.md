@@ -34,12 +34,12 @@ comp/
 │   │       ├── app/              # routes: landing, auth, dashboard
 │   │       ├── components/       # theme + query providers (shadcn added per session)
 │   │       ├── lib/              # cn, api-client
-│   │       └── middleware.ts     # Clerk auth + tenant subdomain routing
+│   │       └── middleware.ts     # JWT session cookie check + tenant subdomain routing
 │   └── api/                      # Hono backend (Railway)
 │       └── src/
 │           ├── index.ts          # app bootstrap
 │           ├── middleware/       # context, auth, rate-limit, audit, error-handler
-│           ├── routes/           # health, tenants, users, clerk-webhook
+│           ├── routes/           # health, auth, tenants, users + module routes
 │           └── lib/              # env, logger, errors, redis, types
 ├── packages/
 │   ├── db/                       # Drizzle schema + Neon client
@@ -57,7 +57,7 @@ comp/
 | Frontend | Next.js 14 App Router, TypeScript, Tailwind, shadcn/ui, Zustand, TanStack Query | PRD §3.2 |
 | Backend | Hono on Node 20, TypeScript | PRD §3.2 |
 | Database | Neon Postgres + Drizzle ORM | PRD §3.2 |
-| Auth | Clerk (multi-tenant orgs, phone OTP for India) | PRD §3.2 |
+| Auth | Self-hosted email + password (bcrypt + HS256 JWT session) — multi-tenant, tenant per signup | Replaces PRD §3.2 Clerk — see BACKEND_CHANGES.md |
 | Cache | Upstash Redis + Upstash Ratelimit | PRD §3.2 |
 | Queue | Upstash QStash | PRD §3.2 |
 | Storage | Cloudflare R2 | PRD §3.2 |
@@ -90,16 +90,15 @@ comp/
 3. Copy the connection string (select "Pooled connection" for serverless)
 4. Set `DATABASE_URL` in `.env`
 
-### 2. Clerk — 5 min
+### 2. Auth — 30 seconds
 
-1. Sign up at https://dashboard.clerk.com
-2. Create a new application
-3. **Enable** Email + Phone (SMS OTP) + Google auth providers
-4. **Enable** Organizations in Settings → Organization settings
-5. Copy `CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` (use the test keys until you're ready to go live)
-6. Create a webhook endpoint: `https://your-api.railway.app/webhooks/clerk` — subscribe to `organization.created`, `organization.updated`, `organization.deleted`, `organizationMembership.created`, `organizationMembership.deleted`, `user.created`, `user.updated`
-7. Copy the signing secret into `CLERK_WEBHOOK_SECRET`
-8. Set both `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_PUBLISHABLE_KEY` to the same value
+Auth is self-hosted (email + password). Generate a JWT signing secret and set it in `.env`:
+
+```bash
+echo "JWT_SECRET=\"$(openssl rand -base64 48)\"" >> .env
+```
+
+The same `JWT_SECRET` value must be set on both `apps/api` and `apps/web` so the web middleware and the API can verify the same token. `JWT_EXPIRES_IN_SECONDS` (default 604800 = 7d) and `BCRYPT_ROUNDS` (default 12) are optional overrides.
 
 ### 3. Anthropic — 1 min
 
@@ -239,7 +238,6 @@ curl http://localhost:8787/health/deep   # hits DB + Redis
 
 | Service | URL |
 |---|---|
-| Clerk | `https://<api domain>/webhooks/clerk` |
 | Mux | `https://<api domain>/webhooks/mux` |
 | Meta WhatsApp | `https://<api domain>/webhooks/whatsapp` |
 | QStash | `https://<api domain>/webhooks/qstash` (for background jobs) |

@@ -1,26 +1,42 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
+import { NextResponse, type NextRequest } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/s/(.*)", // public share-link redirect pages
-  "/i/(.*)", // illustration public view
-  "/api/public/(.*)",
-]);
+const SESSION_COOKIE = "sc_session";
 
-/**
- * Clerk middleware + tenant subdomain routing.
- *
- * Two responsibilities:
- *  1. Enforce auth on every non-public route.
- *  2. Parse the host header into a tenant slug and forward it via
- *     `x-tenant-slug`, so server components and API route handlers can
- *     pick it up without another round trip.
- */
-export default clerkMiddleware(async (auth, req) => {
-  const host = req.headers.get("host") ?? "";
+const publicPathPatterns = [
+  /^\/$/,
+  /^\/sign-in(\/.*)?$/,
+  /^\/sign-up(\/.*)?$/,
+  /^\/s\/.*/,
+  /^\/i\/.*/,
+  /^\/api\/auth\/(login|signup)$/,
+  /^\/api\/public\/.*/,
+];
+
+function isPublic(pathname: string): boolean {
+  return publicPathPatterns.some((re) => re.test(pathname));
+}
+
+function getSecret(): Uint8Array {
+  const raw = process.env.JWT_SECRET;
+  if (!raw) throw new Error("JWT_SECRET must be set on the web app");
+  return new TextEncoder().encode(raw);
+}
+
+async function hasValidSession(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  if (!token) return false;
+  try {
+    await jwtVerify(token, getSecret(), { algorithms: ["HS256"] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export default async function middleware(request: NextRequest): Promise<NextResponse> {
+  const url = request.nextUrl;
+  const host = request.headers.get("host") ?? "";
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "salescontent.ai";
 
   let tenantSlug = "";
@@ -31,21 +47,26 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  const requestHeaders = new Headers(req.headers);
-  if (tenantSlug) requestHeaders.set("x-tenant-slug", tenantSlug);
+  const forwardedHeaders = new Headers(request.headers);
+  if (tenantSlug) forwardedHeaders.set("x-tenant-slug", tenantSlug);
 
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+  if (isPublic(url.pathname)) {
+    return NextResponse.next({ request: { headers: forwardedHeaders } });
   }
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
-});
+  if (!(await hasValidSession(request))) {
+    const signIn = new URL("/sign-in", request.url);
+    const ret = url.pathname + url.search;
+    if (ret && ret !== "/") signIn.searchParams.set("return_to", ret);
+    return NextResponse.redirect(signIn);
+  }
+
+  return NextResponse.next({ request: { headers: forwardedHeaders } });
+}
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static files
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run middleware on API routes
     "/(api|trpc)(.*)",
   ],
 };
